@@ -112,4 +112,5 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
 
     }
   }
+
 }

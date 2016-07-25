@@ -1,13 +1,40 @@
 <resources>
-  <string name="app_name">Stock Hawk</string>
+    <string name="app_name">Stock Hawk</string>
 
-  <string name="action_example">Example action</string>
+    <string name="action_example">Example action</string>
 
-  <string name="action_settings">Settings</string>
-  <string name="action_change_units">Change Units</string>
-  <string name="symbol_search">Symbol Search</string>
-  <string name="content_test">Search for a Stock Symbol</string>
-  <string name="input_hint">FB</string>
-  <string name="input_prefill"></string>
-  <string name="network_toast">Uh-oh! This app requires an internet connection</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_change_units">Change Units</string>
+    <string name="symbol_search">Symbol Search</string>
+    <string name="content_test">Search for a Stock Symbol</string>
+    <string name="input_hint">FB</string>
+    <string name="input_prefill"></string>
+    <string name="network_toast">Uh-oh! This app requires an internet connection</string>
+
+    <!-- Key name for storing stock status in SharedPreferences -->
+    <string name="stock_status_key" translatable="false">stock-status</string>
+
+    <!-- Empty stock Database -->
+    <string name="empty_stock">No stock Information Available</string>
+    <string name="empty_stock_no_network">No stock information available. The network is not
+        available to fetch stock data.
+    </string>
+    <string name="empty_stock_server_down">No stock information available. The server is not
+        returning data.
+    </string>
+    <string name="empty_stock_server_error">No stock information available. The server is not
+        returning valid data. Please check for an updated version of StockHawk.
+    </string>
+    <string name="empty_stock_invalid">No stock information available. The stock is not recognized
+        by the stock server.
+    </string>
+    <string name="loading">Loading...</string>
+    <string name="enter_symbol">Please enter a stock symbol</string>
+
+    <string name="symbol_already_saved">This stock is already saved!</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
 </resources>
