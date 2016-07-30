@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,30 +27,22 @@ import org.w3c.dom.Text;
 public class StockDetailFragment extends Fragment
 {
     public static String LOG_TAG = StockDetailFragment.class.getSimpleName();
-    public static final String SYMBOL_CLICKED = "symbol";
-    public static final String NAME = "name";
-    public static final String CURRENCY = "cur";
-    public static final String LAST_TRADE_DATE = "trade_dt";
-    public static final String DAY_LOW = "day_low";
-    public static final String DAY_HIGH = "day_high";
-    public static final String YEAR_LOW = "year_low";
-    public static final String YEAR_HIGH = "year_high";
-    public static final String EARNINGS_SHARE = "ear_share";
-    public static final String MARKET_CAP = "mkt_cap";
-    public static final String PERCENT_CHANGE = "percent_change";
-    public static final String BID_PRICE = "bid_price";
-    public static final String CHANGE = "change";
+    public static final String SYMBOL_CLICKED = "Symbol";
+    public static final String NAME = "Name";
+    public static final String PERCENT_CHANGE = "Percent Change";
+    public static final String BID_PRICE = "Bid Price";
+    public static final String CHANGE = "Change";
+    public static final String CURRENCY = "Currency";
+    public static final String LAST_TRADE_DATE = "Last trade date";
+    public static final String DAY_LOW = "Day low";
+    public static final String DAY_HIGH = "Day high";
+    public static final String YEAR_LOW = "Year low";
+    public static final String YEAR_HIGH = "Year high";
+    public static final String EARNINGS_SHARE = "Earnings Share";
+    public static final String MARKET_CAP = "Market Capitalisation";
 
     public String mSymbol;
     public String mName;
-    public String mCurrency;
-    public String mLastTradeDate;
-    public String mDayLow;
-    public String mDayHigh;
-    public String mYearLow;
-    public String mYearHigh;
-    public String mEarningsShare;
-    public String mMarketcapitalization;
     public String mBidPrice;
     public String mPercentChange;
     public String mChange;
@@ -74,14 +67,6 @@ public class StockDetailFragment extends Fragment
         {
             mSymbol = getArguments().getString(SYMBOL_CLICKED);
             mName = getArguments().getString(NAME);
-            mCurrency = getArguments().getString(CURRENCY);
-            mLastTradeDate = getArguments().getString(LAST_TRADE_DATE);
-            mDayHigh = getArguments().getString(DAY_HIGH);
-            mDayLow = getArguments().getString(DAY_LOW);
-            mYearHigh = getArguments().getString(YEAR_HIGH);
-            mYearLow = getArguments().getString(YEAR_LOW);
-            mEarningsShare = getArguments().getString(EARNINGS_SHARE);
-            mMarketcapitalization = getArguments().getString(MARKET_CAP);
             mBidPrice = getArguments().getString(BID_PRICE);
             mPercentChange = getArguments().getString(PERCENT_CHANGE);
             mChange = getArguments().getString(CHANGE);
@@ -111,17 +96,9 @@ public class StockDetailFragment extends Fragment
         TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.materialup_tabs);
         ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.materialup_viewpager);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.materialup_toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                //onBackPressed();
-            }
-        });
-
-
+        NestedScrollView scrollView = (NestedScrollView) rootView.findViewById (R.id.myscroll);
+        //this is important to set to keep viewpager inside of a scrollview, else data in your viewpager won't be visible
+        scrollView.setFillViewport (true);
         viewPager.setAdapter(new TabsAdapter(getActivity().getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
     }
@@ -141,7 +118,7 @@ public class StockDetailFragment extends Fragment
         public Fragment getItem(int i) {
             switch(i) {
                 case 0: return ChartFragment.newInstance();
-                case 1: return ChartFragment.newInstance();
+                case 1: return StockDetailCardFragment.newInstance(getArguments());
             }
             return null;
         }
@@ -149,8 +126,8 @@ public class StockDetailFragment extends Fragment
         @Override
         public CharSequence getPageTitle(int position) {
             switch(position) {
-                case 0: return "Tab 1";
-                case 1: return "Tab 2";
+                case 0: return "Chart";
+                case 1: return "More";
             }
             return "";
         }
