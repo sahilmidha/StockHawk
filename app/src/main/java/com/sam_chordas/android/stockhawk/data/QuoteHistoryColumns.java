@@ -23,4 +23,7 @@ public class QuoteHistoryColumns
     @DataType(DataType.Type.TEXT)
     @NotNull
     public static final String LAST_CLOSING_PRICE = "bid_price";
+    @DataType(DataType.Type.INTEGER)
+    @NotNull
+    public static final String ISCURRENT = "is_current";
 }

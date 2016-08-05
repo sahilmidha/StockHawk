@@ -4,6 +4,7 @@ package com.sam_chordas.android.stockhawk.ui;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -13,9 +14,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.sam_chordas.android.stockhawk.R;
+import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteHistoryColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+import com.sam_chordas.android.stockhawk.rest.Utils;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +37,8 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int CURSOR_LOADER_ID_FOR_CHART = 0;
 
     public static String mSymbol;
+
+    private LineChart mLineChart;
 
     public ChartFragment()
     {
@@ -41,11 +55,12 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
 
         getLoaderManager().initLoader(CURSOR_LOADER_ID_FOR_CHART, null, this);
 
-
+        mLineChart = (LineChart) view.findViewById(R.id.chart);
         return view;
     }
 
-    public static Fragment newInstance(String symbol) {
+    public static Fragment newInstance(String symbol)
+    {
 
         mSymbol = symbol;
         return new ChartFragment();
@@ -74,11 +89,18 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args)
     {
-        return new android.support.v4.content.CursorLoader(getContext(), QuoteProvider.QuotesHistory.CONTENT_URI,
+        String whereClause = QuoteHistoryColumns.SYMBOL + " = ? AND " + QuoteHistoryColumns.ISCURRENT + " =? ";
+        String [] whereArgs = {mSymbol, "1"};
+
+        return new android.support.v4.content.CursorLoader(
+                getContext(),
+                QuoteProvider.QuotesHistory.CONTENT_URI,
                 new String[]{QuoteHistoryColumns._ID, QuoteHistoryColumns.SYMBOL,
-                        QuoteHistoryColumns.LAST_CLOSING_PRICE, QuoteHistoryColumns.DATE},
-                QuoteHistoryColumns.SYMBOL + " = \"" + mSymbol + "\"",
-                null, null);    }
+                            QuoteHistoryColumns.LAST_CLOSING_PRICE, QuoteHistoryColumns.DATE},
+                whereClause,
+                whereArgs,
+                null);
+    }
 
     /**
      * Called when a previously created loader has finished its load.  Note
@@ -122,7 +144,10 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data)
     {
-
+        if(data != null)
+        {
+            updateChart(data);
+        }
     }
 
     /**
@@ -136,5 +161,51 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onLoaderReset(Loader<Cursor> loader)
     {
         //Nothing to do here. We aren't using any Adapters
+    }
+
+    public void updateChart(Cursor cursor)
+    {
+        //this will store yValues(Closing price)
+        ArrayList<Entry> entries = new ArrayList<>();
+
+        //this will store xValues(Date)
+        ArrayList<String> xvalues = new ArrayList<>();
+
+        cursor.moveToFirst();
+        int i=0;
+        while(cursor.moveToNext()){
+            //out Yvalue will store closing price.
+            double yValue_closingPrice = cursor.getDouble(cursor.getColumnIndex(QuoteHistoryColumns.LAST_CLOSING_PRICE));
+            entries.add(new Entry((float) yValue_closingPrice, i++));
+
+            //xValue will store date
+            String date = Utils.convertDate(cursor.getString(cursor.getColumnIndex(QuoteHistoryColumns.DATE)));
+            xvalues.add(date);
+        }
+
+        XAxis xAxis = mLineChart.getXAxis();
+        xAxis.setLabelsToSkip(5);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(12f);
+        xAxis.setTextColor(Color.rgb(182,182,182));
+
+        YAxis left = mLineChart.getAxisLeft();
+        left.setEnabled(true);
+        left.setLabelCount(10, true);
+        left.setTextColor(Color.rgb(182,182,182));
+
+        mLineChart.getAxisRight().setEnabled(false);
+        mLineChart.getLegend().setTextSize(16f);
+        mLineChart.setDrawGridBackground(true);
+        mLineChart.setGridBackgroundColor(Color.rgb(25,118,210));
+        mLineChart.setDescriptionColor(Color.WHITE);
+        mLineChart.setDescription(getString(R.string.one_year_stock_comparison));
+
+        String name= getResources().getString(R.string.instructions_chart);
+        LineDataSet dataSet = new LineDataSet(entries, name);
+        LineData lineData = new LineData(xvalues, dataSet);
+
+        mLineChart.animateX(2500);
+        mLineChart.setData(lineData);
     }
 }

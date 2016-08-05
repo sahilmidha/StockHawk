@@ -191,6 +191,9 @@ public class StockTaskService extends GcmTaskService
                                 contentValues.put(QuoteColumns.ISCURRENT, 0);
                                 mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
                                         null, null);
+                                contentValues.put(QuoteHistoryColumns.ISCURRENT, 0);
+                                mContext.getContentResolver().update(QuoteProvider.QuotesHistory.CONTENT_URI, contentValues,
+                                        null, null);
                             }
                             mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
                                     arrayList);
@@ -390,6 +393,7 @@ public class StockTaskService extends GcmTaskService
                 JSONObject singleObject = series_data.getJSONObject(i);
                 contentValues.put(QuoteHistoryColumns.DATE, singleObject.getString(JSON_DATE));
                 contentValues.put(QuoteHistoryColumns.LAST_CLOSING_PRICE, singleObject.getString(JSON_CLOSE));
+                contentValues.put(QuoteHistoryColumns.ISCURRENT,1);
                 if (mUpdateCall)
                 {//this is a periodic update
                     mContext.getContentResolver().update(QuoteProvider.QuotesHistory.CONTENT_URI, contentValues,
