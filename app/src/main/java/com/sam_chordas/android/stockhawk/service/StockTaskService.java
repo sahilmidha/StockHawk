@@ -17,6 +17,7 @@ import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
+import com.sam_chordas.android.stockhawk.data.QuoteHistoryColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.rest.Utils;
 import com.squareup.okhttp.OkHttpClient;
@@ -27,12 +28,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sam_chordas on 9/30/15.
@@ -46,7 +53,10 @@ public class StockTaskService extends GcmTaskService
     private OkHttpClient client = new OkHttpClient();
     private Context mContext;
     private StringBuilder mStoredSymbols = new StringBuilder();
-    private boolean isUpdate;
+    private boolean mIsUpdate;
+    private boolean mUpdateCall;
+
+    private List<String> mSymbolList = new ArrayList<String>();
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STOCK_STATUS_OK, STOCK_STATUS_SERVER_DOWN, STOCK_STATUS_SERVER_INVALID, STOCK_STATUS_UNKNOWN, STOCK_STATUS_INVALID})
@@ -77,6 +87,10 @@ public class StockTaskService extends GcmTaskService
         {
             mContext = this;
         }
+        if(params.getTag().equals("periodic")){
+            //make an update call
+            mUpdateCall = true;
+        }
         StringBuilder urlStringBuilder = new StringBuilder();
         try
         {
@@ -92,7 +106,7 @@ public class StockTaskService extends GcmTaskService
         }
         if (params.getTag().equals("init") || params.getTag().equals("periodic"))
         {
-            isUpdate = true;
+            mIsUpdate = true;
             initQueryCursor = mContext.getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                     new String[]{"Distinct " + QuoteColumns.SYMBOL}, null,
                     null, null);
@@ -132,7 +146,7 @@ public class StockTaskService extends GcmTaskService
         }
         else if (params.getTag().equals("add"))
         {
-            isUpdate = false;
+            mIsUpdate = false;
             // get symbol from params.getExtra and build query
             String stockInput = params.getExtras().getString("symbol");
             try
@@ -172,7 +186,7 @@ public class StockTaskService extends GcmTaskService
                         {
                             ContentValues contentValues = new ContentValues();
                             // update ISCURRENT to 0 (false) so new data is current
-                            if (isUpdate)
+                            if (mIsUpdate)
                             {
                                 contentValues.put(QuoteColumns.ISCURRENT, 0);
                                 mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
@@ -190,6 +204,8 @@ public class StockTaskService extends GcmTaskService
                         }
                     }
                 }
+                //Save Quotes History
+                saveQuotesHistory(mSymbolList);
             }
             catch (IOException e)
             {
@@ -249,6 +265,8 @@ public class StockTaskService extends GcmTaskService
                 if (null != name
                         && !name.equalsIgnoreCase("null"))
                 {
+                    //preparing List of stocks that would go in DB
+                    mSymbolList.add(jsonObject.getString("symbol"));
                     batchOperations.add(buildBatchOperation(jsonObject));
                 }
                 else
@@ -265,6 +283,8 @@ public class StockTaskService extends GcmTaskService
                     for (int i = 0; i < resultsArray.length(); i++)
                     {
                         jsonObject = resultsArray.getJSONObject(i);
+                        //preparing List of stocks that would go in DB
+                        mSymbolList.add(jsonObject.getString("symbol"));
                         batchOperations.add(buildBatchOperation(jsonObject));
                     }
                 }
@@ -320,5 +340,119 @@ public class StockTaskService extends GcmTaskService
         SharedPreferences.Editor spe = sp.edit();
         spe.putInt(c.getString(R.string.stock_status_key), stockStatus);
         spe.commit();
+    }
+
+    private void saveQuotesHistory(List<String> quotes) throws IOException, JSONException
+    {
+
+        for (String quote : quotes)
+        {
+            // Load historical data for the quote
+            fetchHistoricalData(quote);
+        }
+    }
+
+    private void fetchHistoricalData(String symbol) throws IOException, JSONException
+    {
+
+        ArrayList arrayList;
+        // Load historic stock data
+        final String BASE_URL = "http://chartapi.finance.yahoo.com/instrument/1.0/";
+        final String END_URL = "/chartdata;type=quote;range=1y/json";
+
+        StringBuilder urlStringBuilder = new StringBuilder();
+        urlStringBuilder.append(BASE_URL + symbol + END_URL);
+
+        String responseStr = executeNetworkRequest(new URL(urlStringBuilder.toString()));
+        /*if (response != 200)
+        {
+            // Stream was empty.  No point in parsing.
+            setStockStatus(mContext, STOCK_STATUS_SERVER_INVALID);
+        }
+        else
+        {*/
+            //to parse the json data..
+            String JSON_SERIES = "series";
+            String JSON_DATE = "Date";
+            String JSON_CLOSE = "close";
+
+            ContentValues contentValues = new ContentValues();
+            /**
+             * The retrieved data is in JSONP format.
+             * so we need to strip off the outer function,
+             * and then parse the json data inside that.
+             */
+            String json = responseStr.substring(responseStr.indexOf("(") + 1, responseStr.lastIndexOf(")"));
+            JSONObject mainObject = new JSONObject(json);
+            JSONArray series_data = mainObject.getJSONArray(JSON_SERIES);
+            for (int i = 0; i < series_data.length(); i += 10)
+            {
+                JSONObject singleObject = series_data.getJSONObject(i);
+                contentValues.put(QuoteHistoryColumns.DATE, singleObject.getString(JSON_DATE));
+                contentValues.put(QuoteHistoryColumns.LAST_CLOSING_PRICE, singleObject.getString(JSON_CLOSE));
+                if (mUpdateCall)
+                {//this is a periodic update
+                    mContext.getContentResolver().update(QuoteProvider.QuotesHistory.CONTENT_URI, contentValues,
+                            QuoteHistoryColumns.SYMBOL, new String[]{symbol});
+                }
+                else
+                {//this is adding new symbol (either on add or on initialisation)
+                    contentValues.put(QuoteHistoryColumns.SYMBOL, symbol);
+                    mContext.getContentResolver().insert(QuoteProvider.QuotesHistory.CONTENT_URI, contentValues);
+                }
+            //}
+        }
+    }
+
+    private String executeNetworkRequest(URL url)
+    {
+        final int REQUEST_READ_TIME_OUT = 10000;
+        final int REQUEST_CONNECTION_TIME_OUT = 15000;
+
+        HttpURLConnection connection = null;
+        try
+        {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(REQUEST_READ_TIME_OUT);
+            connection.setConnectTimeout(REQUEST_CONNECTION_TIME_OUT);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            //connection.setRequestProperty("Accept", "application/json");
+
+            connection.setUseCaches(false);
+            //connection.setDoInput(false);
+            //connection.setDoOutput(true);
+            Log.v("DataFetcher", url.toString());
+            int statusCode = connection.getResponseCode();
+            if (statusCode != HttpURLConnection.HTTP_OK)
+            {
+                throw new Exception();
+            }
+
+            //Get Response
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            String line;
+            StringBuffer response = new StringBuffer();
+            while ((line = rd.readLine()) != null)
+            {
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();
+            return response.toString();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            return null;// we can create custom classes to handle multiple type of scenerios.
+        }
+        finally
+        {
+            if (connection != null)
+            {
+                connection.disconnect();
+            }
+        }
     }
 }

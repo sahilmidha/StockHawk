@@ -3,14 +3,12 @@ package com.sam_chordas.android.stockhawk.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +16,8 @@ import android.widget.TextView;
 
 import com.sam_chordas.android.stockhawk.R;
 
-import org.w3c.dom.Text;
-
 /**
  * A simple {@link Fragment} subclass. This will contain detailed information for a stock symbol.
- *
  */
 public class StockDetailFragment extends Fragment
 {
@@ -96,38 +91,53 @@ public class StockDetailFragment extends Fragment
         TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.materialup_tabs);
         ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.materialup_viewpager);
 
-        NestedScrollView scrollView = (NestedScrollView) rootView.findViewById (R.id.myscroll);
-        //this is important to set to keep viewpager inside of a scrollview, else data in your viewpager won't be visible
-        scrollView.setFillViewport (true);
+        NestedScrollView scrollView = (NestedScrollView) rootView.findViewById(R.id.myscroll);
+        /*
+        This is important to set to keep viewpager inside of a scrollview, else data in your viewpager won't be visible
+        ScrollViews are used to have only one children (e.g. vertical LinearLayout), and ScrollView's default height is based on
+        the content inside LinearLayout. Let's say LinearLayout has three 30dp height views inside, then ScrollView's height now is 90dp.
+        If you put the paremeter (android:fillViewport="true") then it's gonna make the height match/fill the parent.
+         */
+        scrollView.setFillViewport(true);
         viewPager.setAdapter(new TabsAdapter(getActivity().getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
     }
 
     class TabsAdapter extends FragmentPagerAdapter
     {
-        public TabsAdapter(FragmentManager fm) {
+        public TabsAdapter(FragmentManager fm)
+        {
             super(fm);
         }
 
         @Override
-        public int getCount() {
+        public int getCount()
+        {
             return 2;
         }
 
         @Override
-        public Fragment getItem(int i) {
-            switch(i) {
-                case 0: return ChartFragment.newInstance();
-                case 1: return StockDetailCardFragment.newInstance(getArguments());
+        public Fragment getItem(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return ChartFragment.newInstance(mSymbol);
+                case 1:
+                    return StockDetailCardFragment.newInstance(getArguments());
             }
             return null;
         }
 
         @Override
-        public CharSequence getPageTitle(int position) {
-            switch(position) {
-                case 0: return "Chart";
-                case 1: return "More";
+        public CharSequence getPageTitle(int position)
+        {
+            switch (position)
+            {
+                case 0:
+                    return "Chart";
+                case 1:
+                    return "More";
             }
             return "";
         }
