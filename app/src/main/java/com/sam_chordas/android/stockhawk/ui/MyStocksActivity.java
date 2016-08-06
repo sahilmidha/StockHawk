@@ -126,7 +126,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                                     {
                                         dialog.dismiss();
                                         //This is very imp. Else your db will treat Goog and goog differnt stocks. though they are same.
-                                        String s = input.toString().toLowerCase().trim();
+                                        String s = input.toString().toUpperCase().trim();
                                         // On FAB click, receive user input. Make sure the stock doesn't already exist
                                         // in the DB and proceed accordingly
                                         Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
@@ -143,7 +143,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                                         {
                                             // Add the stock to DB
                                             mServiceIntent.putExtra("tag", "add");
-                                            mServiceIntent.putExtra("symbol", input.toString());
+                                            mServiceIntent.putExtra("symbol", s);
                                             startService(mServiceIntent);
                                             showProgressDialog(mContext);
                                         }
@@ -171,7 +171,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         mTitle = getTitle();
         if (isConnected)
         {
-            long period = 3600L;
+            long period = 60L;
             long flex = 10L;
             String periodicTag = "periodic";
 

@@ -35,6 +35,18 @@ public class QuoteProvider {
             type = "vnd.android.cursor.dir/quote_history"
     )
     public static final Uri CONTENT_URI = buildUri(Path.QUOTES_HISTORY);
+
+    @InexactContentUri(
+            name = "QUOTE_ID",
+            path = Path.QUOTES_HISTORY + "/*",
+            type = "vnd.android.cursor.item/quote_history",
+            whereColumn = QuoteHistoryColumns.SYMBOL,
+            pathSegment = 1
+    )
+
+    public static Uri withSymbol(String symbol){
+      return buildUri(Path.QUOTES_HISTORY, symbol);
+    }
   }
 
   @TableEndpoint(table = QuoteDatabase.QUOTES)

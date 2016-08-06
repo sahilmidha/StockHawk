@@ -89,8 +89,8 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args)
     {
-        String whereClause = QuoteHistoryColumns.SYMBOL + " = ? AND " + QuoteHistoryColumns.ISCURRENT + " =? ";
-        String [] whereArgs = {mSymbol, "1"};
+        String whereClause = QuoteHistoryColumns.SYMBOL + " = ? ";
+        String [] whereArgs = {mSymbol};
 
         return new android.support.v4.content.CursorLoader(
                 getContext(),

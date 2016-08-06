@@ -77,6 +77,7 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     c.moveToPosition(position);
     String symbol = c.getString(c.getColumnIndex(QuoteColumns.SYMBOL));
     mContext.getContentResolver().delete(QuoteProvider.Quotes.withSymbol(symbol), null, null);
+    mContext.getContentResolver().delete(QuoteProvider.QuotesHistory.withSymbol(symbol), null, null);
     notifyItemRemoved(position);
   }
 
