@@ -16,5 +16,17 @@
     <dimen name="eleven_dp">11dp</dimen>
     <dimen name="ten_dp">10dp</dimen>
 
+    <!-- Widget attributes-->
+    <dimen name="widget_default_width">110dp</dimen>
+    <dimen name="widget_default_height">40dp</dimen>
+    <dimen name="widget_min_resize_width">40dp</dimen>
+    <dimen name="widget_min_resize_height">@dimen/widget_default_height</dimen>
+    <dimen name="widget_large_width">220dp</dimen>
+
+    <!-- Detail Widget attributes-->
+    <dimen name="widget_detail_default_width">250dp</dimen>
+    <dimen name="widget_detail_default_height">180dp</dimen>
+    <dimen name="widget_detail_min_resize_width">220dp</dimen>
+    <dimen name="widget_detail_min_resize_height">@dimen/widget_detail_default_height</dimen>
 
 </resources>

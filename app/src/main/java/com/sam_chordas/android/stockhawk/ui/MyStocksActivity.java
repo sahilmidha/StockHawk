@@ -61,6 +61,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     private RecyclerView mRecyclerView;
     private TextView mTextViewEmpty;
 
+    public static final String ACTION_DATA_UPDATED = "com.sam_chordas.android.stockhawk.ui.ACTION_DATA_UPDATED";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -282,6 +284,9 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         mCursor = data;
         //Below call will handle view in case server is down/or user entered wrong input
         updateEmptyView();
+
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+        sendBroadcast(dataUpdatedIntent);
     }
 
     @Override

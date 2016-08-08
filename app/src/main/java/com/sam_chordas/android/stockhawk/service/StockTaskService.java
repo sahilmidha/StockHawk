@@ -348,7 +348,7 @@ public class StockTaskService extends GcmTaskService
         {//this is a periodic update
             mContext.getContentResolver().delete(QuoteProvider.QuotesHistory.CONTENT_URI,
                     null, null);
-            Log.v("Sahil", "delete");
+            Log.d(LOG_TAG, "delete quote history");
         }
 
         for (String quote : quotes)

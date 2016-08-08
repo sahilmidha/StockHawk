@@ -37,6 +37,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="instructions_chart">Hold the chart lines to move the chart</string>
     <string name="one_year_stock_comparison">Last 12 Months Stock Comparison</string>
+    <string name="title_widget">Stocks Today</string>
 
 
 </resources>

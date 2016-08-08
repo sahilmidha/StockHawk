@@ -25,4 +25,8 @@
     <item name="navigationIcon">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
   </style>
 
+  <style name="WidegtStockSymbolTextStyle">
+    <item name="android:textSize">20sp</item>
+    <item name="android:textAllCaps">true</item>
+  </style>
 </resources>
