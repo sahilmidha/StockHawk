@@ -15,7 +15,6 @@ import android.widget.RemoteViews;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
 import com.sam_chordas.android.stockhawk.ui.StockDetailActivity;
-import com.sam_chordas.android.stockhawk.ui.StockDetailFragment;
 
 /**
  * Created by sahilmidha on 09/08/16.
@@ -31,7 +30,7 @@ public class DetailWidgetProvider extends AppWidgetProvider
             // Create an Intent to launch MyStocksActivity
             Intent intent = new Intent(context, MyStocksActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-            views.setOnClickPendingIntent(R.id.basic_detail_layout, pendingIntent);
+            views.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
             // Set up the collection
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -46,7 +45,8 @@ public class DetailWidgetProvider extends AppWidgetProvider
             PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
                     .addNextIntentWithParentStack(clickIntentTemplate)
                     .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setPendingIntentTemplate(R.id.basic_detail_layout, clickPendingIntentTemplate);
+            views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
+            views.setEmptyView(R.id.widget_list, R.id.widget_empty);
 
             // Tell the AppWidgetManager to perform an update on the current app widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -60,7 +60,7 @@ public class DetailWidgetProvider extends AppWidgetProvider
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                     new ComponentName(context, getClass()));
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.basic_detail_layout);
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
         }
     }
 
@@ -71,7 +71,7 @@ public class DetailWidgetProvider extends AppWidgetProvider
      */
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void setRemoteAdapter(Context context, @NonNull final RemoteViews views) {
-        views.setRemoteAdapter(R.id.basic_detail_layout,
+        views.setRemoteAdapter(R.id.widget_list,
                 new Intent(context, DetailWidgetRemoteViewsService.class));
     }
 
@@ -82,7 +82,7 @@ public class DetailWidgetProvider extends AppWidgetProvider
      */
     @SuppressWarnings("deprecation")
     private void setRemoteAdapterV11(Context context, @NonNull final RemoteViews views) {
-        views.setRemoteAdapter(0, R.id.basic_detail_layout,
+        views.setRemoteAdapter(0, R.id.widget_list,
                 new Intent(context, DetailWidgetRemoteViewsService.class));
     }
 }
