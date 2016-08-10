@@ -25,31 +25,37 @@ public class DetailWidgetProvider extends AppWidgetProvider
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Perform this loop procedure for each App Widget that belongs to this provider
         for (int appWidgetId : appWidgetIds) {
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_detail);
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_detail);
 
             // Create an Intent to launch MyStocksActivity
             Intent intent = new Intent(context, MyStocksActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-            views.setOnClickPendingIntent(R.id.widget, pendingIntent);
+            remoteViews.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
             // Set up the collection
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                setRemoteAdapter(context, views);
+                setRemoteAdapter(context, remoteViews);
             } else {
-                setRemoteAdapterV11(context, views);
+                setRemoteAdapterV11(context, remoteViews);
             }
 
-
+            // Here we setup the a pending intent template. Individuals items of a collection
+            // cannot setup their own pending intents, instead, the collection as a whole can
+            // setup a pending intent template, and the individual items can set a fillInIntent
+            // to create unique before on an item to item basis.
             Intent clickIntentTemplate = new Intent(context, StockDetailActivity.class);
 
             PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
                     .addNextIntentWithParentStack(clickIntentTemplate)
                     .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
-            views.setEmptyView(R.id.widget_list, R.id.widget_empty);
+
+            remoteViews.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
+            // The empty view is displayed when the collection has no items. It should be a sibling
+            // of the collection view.
+            remoteViews.setEmptyView(R.id.widget_list, R.id.widget_empty);
 
             // Tell the AppWidgetManager to perform an update on the current app widget
-            appWidgetManager.updateAppWidget(appWidgetId, views);
+            appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
         }
     }
 

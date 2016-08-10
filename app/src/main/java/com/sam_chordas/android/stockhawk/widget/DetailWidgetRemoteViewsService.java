@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -11,6 +12,7 @@ import android.widget.RemoteViewsService;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+import com.sam_chordas.android.stockhawk.ui.StockDetailFragment;
 
 /**
  * Created by sahilmidha on 09/08/16.
@@ -23,14 +25,34 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService
     private static final String[] QUOTE_COLUMNS = {
             QuoteColumns._ID,
             QuoteColumns.SYMBOL,
+            QuoteColumns.NAME,
+            QuoteColumns.CURRENCY,
+            QuoteColumns.MARKETCAPITALIZATION,
+            QuoteColumns.YEARHIGH,
+            QuoteColumns.YEARLOW,
+            QuoteColumns.DAYHIGH,
+            QuoteColumns.DAYLOW,
+            QuoteColumns.LASTTRADEDATE,
+            QuoteColumns.EARNINGSSHARE,
             QuoteColumns.BIDPRICE,
+            QuoteColumns.PERCENT_CHANGE,
             QuoteColumns.CHANGE
     };
     // these indices must match the projection
     private static final int INDEX_QUOTE_ID = 0;
     private static final int INDEX_SYMBOL = 1;
-    private static final int INDEX__BIDPRICE = 2;
-    private static final int INDEX_CHANGE = 3;
+    private static final int INDEX_NAME = 2;
+    private static final int INDEX_CURRENCY = 3;
+    private static final int INDEX_MARKET_CAP = 4;
+    private static final int INDEX_YEAR_HIGH = 5;
+    private static final int INDEX_YEAR_LOW = 6;
+    private static final int INDEX_DAY_HIGH = 7;
+    private static final int INDEX_DAY_LOW = 8;
+    private static final int INDEX_LAST_TRADE_DATE= 9;
+    private static final int INDEX_EARNINGS_SHARE= 10;
+    private static final int INDEX_BID_PRICE = 11;
+    private static final int INDEX_PERCENT_CHANGE = 12;
+    private static final int INDEX_CHANGE = 13;
 
     @Override
     public RemoteViewsService.RemoteViewsFactory onGetViewFactory(Intent intent) {
@@ -41,9 +63,12 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService
             public void onCreate() {
                 // Nothing to do
             }
-            //Then onDataSetChanged() is called at second place.
-            // We also call notifyAppWidgetViewDataChanged() via appWidgetManager to call below
-            // onDataSetChanged() to requery data.
+            // This is triggered when you call AppWidgetManager notifyAppWidgetViewDataChanged
+            // on the collection view corresponding to this factory. You can do heaving lifting in
+            // here, synchronously. For example, if you need to process an image, fetch something
+            // from the network, etc., it is ok to do it here, synchronously. The widget will remain
+            // in its current state while work is being done here, so you don't need to worry about
+            // locking up the widget.
             @Override
             public void onDataSetChanged() {
                 if (data != null) {
@@ -85,31 +110,59 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService
             }
 
             //Then finally we fetch view data in below 2 methods.
-
+            // You can do heaving lifting in here, synchronously. For example, if you need to
+            // process an image, fetch something from the network, etc., it is ok to do it here,
+            // synchronously. A loading view will show up in lieu of the actual contents in the
+            // interim.
             @Override
             public RemoteViews getViewAt(int position) {
+                // position will always range from 0 to getCount() - 1.
+
                 if (position == AdapterView.INVALID_POSITION ||
                         data == null || !data.moveToPosition(position)) {
                     return null;
                 }
-                RemoteViews views = new RemoteViews(getPackageName(),
+
+                // We construct a remote views item based on our widget item xml file, and set the
+                // views data based on the position. (Note that we have moved cursor to that position)
+                RemoteViews remoteViews = new RemoteViews(getPackageName(),
                         R.layout.widget_detail_list_item);
 
                 int quoteId = data.getInt(INDEX_QUOTE_ID);
                 String symbol = data.getString(INDEX_SYMBOL);
-                String bidPrice = data.getString(INDEX__BIDPRICE);
+                String bidPrice = data.getString(INDEX_BID_PRICE);
                 String change = data.getString(INDEX_CHANGE);
 
                 //set Data to the views
-                views.setTextViewText(R.id.stock_symbol_widget, symbol);
-                views.setTextViewText(R.id.bid_price_widget, bidPrice);
-                views.setTextViewText(R.id.change_widget, change);
+                remoteViews.setTextViewText(R.id.stock_symbol_widget, symbol);
+                remoteViews.setTextViewText(R.id.bid_price_widget, bidPrice);
+                remoteViews.setTextViewText(R.id.change_widget, change);
 
+                Bundle extras = new Bundle();
+                extras.putString(StockDetailFragment.SYMBOL_CLICKED,data.getString(INDEX_SYMBOL));
+                extras.putString(StockDetailFragment.NAME,data.getString(INDEX_NAME));
+                extras.putString(StockDetailFragment.CURRENCY,data.getString(INDEX_CURRENCY));
+                extras.putString(StockDetailFragment.MARKET_CAP,data.getString(INDEX_MARKET_CAP));
+                extras.putString(StockDetailFragment.YEAR_HIGH,data.getString(INDEX_YEAR_HIGH));
+                extras.putString(StockDetailFragment.YEAR_LOW,data.getString(INDEX_YEAR_LOW));
+                extras.putString(StockDetailFragment.DAY_HIGH,data.getString(INDEX_DAY_HIGH));
+                extras.putString(StockDetailFragment.DAY_LOW,data.getString(INDEX_DAY_LOW));
+                extras.putString(StockDetailFragment.LAST_TRADE_DATE,data.getString(INDEX_LAST_TRADE_DATE));
+                extras.putString(StockDetailFragment.EARNINGS_SHARE,data.getString(INDEX_EARNINGS_SHARE));
+                extras.putString(StockDetailFragment.BID_PRICE,data.getString(INDEX_BID_PRICE));
+                extras.putString(StockDetailFragment.PERCENT_CHANGE,data.getString(INDEX_PERCENT_CHANGE));
+                extras.putString(StockDetailFragment.CHANGE,data.getString(INDEX_CHANGE));
+
+                // Next, we set a fill-intent which will be used to fill-in the pending intent template
+                // which is set on the collection view in DetailWidgetProvider class.
                 final Intent fillInIntent = new Intent();
-                Uri uri = QuoteProvider.QuotesHistory.withSymbol(symbol);
-                fillInIntent.setData(uri);
-                views.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
-                return views;
+                fillInIntent.putExtras(extras);
+                // Note that we need to update the intent's data if we set an extra, since the extras will be
+                // ignored otherwise.
+                fillInIntent.setData(Uri.parse(fillInIntent.toUri(Intent.URI_INTENT_SCHEME)));
+                remoteViews.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
+
+                return remoteViews;
             }
 
             @Override

@@ -29,7 +29,7 @@
         android:id="@+id/widget_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:contentDescription="@string/stock_widget"
         tools:listitem="@layout/widget_detail_list_item"/>
     <TextView
         android:id="@+id/widget_empty"

@@ -188,6 +188,10 @@ public class StockTaskService extends GcmTaskService
                             // update ISCURRENT to 0 (false) so new data is current
                             if (mIsUpdate)
                             {
+                                Log.d(LOG_TAG, "delete quote history");
+                                mContext.getContentResolver().delete(QuoteProvider.QuotesHistory.CONTENT_URI,
+                                        null, null);
+
                                 contentValues.put(QuoteColumns.ISCURRENT, 0);
                                 mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
                                         null, null);
