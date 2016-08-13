@@ -48,6 +48,8 @@
     <string name="change">Change in Stock</string>
     <string name="bid_price">Bid Price</string>
     <string name="symbol_name">Stock name</string>
+    <string name="stock_added">Stock successfully added</string>
+    <string name="stock_detail_title">Stock Detail</string>
 
 
 </resources>

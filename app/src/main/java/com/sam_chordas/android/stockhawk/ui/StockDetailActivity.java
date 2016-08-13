@@ -19,6 +19,7 @@ public class StockDetailActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_stock_detail);
 
+        getSupportActionBar().setTitle(getString(R.string.stock_detail_title));
         if (savedInstanceState == null) {
 
             Intent intent = getIntent();
