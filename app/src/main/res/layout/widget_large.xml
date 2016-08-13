@@ -17,13 +17,13 @@
         style="@style/WidegtStockSymbolTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left|center_vertical"
+        android:gravity="start|left|center_vertical"
         tools:text="GOOG"
     />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left|center_vertical"
+        android:gravity="start|left|center_vertical"
         android:layout_margin="@dimen/five_dp"
         tools:text=" - "
     />
@@ -31,7 +31,7 @@
         android:id="@+id/stock_name_widget"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left|center_vertical"
+        android:gravity="start|left|center_vertical"
         android:textSize="20sp"
         tools:text="Alphabet Inc."
     />
@@ -39,7 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="right"
+        android:gravity="right|end"
     >
         <TextView
             android:id="@+id/bid_price_widget"

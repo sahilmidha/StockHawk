@@ -140,9 +140,9 @@ public class StockDetailFragment extends Fragment
             switch (position)
             {
                 case 0:
-                    return "Chart";
+                    return getActivity().getString(R.string.chart);
                 case 1:
-                    return "More";
+                    return getActivity().getString(R.string.more);
             }
             return "";
         }

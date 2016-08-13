@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:gravity="left"
+            android:gravity="start|left"
             android:layout_gravity="center_vertical"
             android:textColor="@android:color/black"
             android:paddingLeft="@dimen/five_dp"
@@ -37,7 +37,7 @@
             android:layout_gravity="center_vertical"
             android:paddingRight="@dimen/five_dp"
             android:paddingEnd="@dimen/five_dp"
-            android:gravity="right"
+            android:gravity="right|end"
             android:textSize="@dimen/sixteen_dp"
             tools:text="1000.00"
 

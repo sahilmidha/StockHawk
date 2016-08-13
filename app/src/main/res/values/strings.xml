@@ -51,5 +51,7 @@
     <string name="tag">tag</string>
     <string name="add_symbol">add</string>
     <string name="periodic">periodic</string>
+    <string name="chart">Chart</string>
+    <string name="more">More</string>
 
 </resources>
