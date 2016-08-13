@@ -86,7 +86,7 @@
             android:layout_width="fill_parent"
             android:layout_height="?attr/actionBarSize"
             app:tabIndicatorColor="@android:color/white"
-            app:tabIndicatorHeight="4dp"
+            app:tabIndicatorHeight="@dimen/four_dp"
             app:tabSelectedTextColor="?android:attr/textColorPrimaryInverse"
         />
     </android.support.design.widget.AppBarLayout>

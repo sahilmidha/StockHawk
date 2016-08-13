@@ -10,11 +10,17 @@
     <dimen name="list_item_stock_height_card">30dp</dimen>
     <dimen name="symbol_horizontal_padding">8dp</dimen>
     <dimen name="bidprice_text_size">42sp</dimen>
+
     <dimen name="sixteen_dp">16dp</dimen>
     <dimen name="five_dp">5dp</dimen>
     <dimen name="two_dp">2dp</dimen>
+    <dimen name="four_dp">4dp</dimen>
     <dimen name="eleven_dp">11dp</dimen>
     <dimen name="ten_dp">10dp</dimen>
+    <dimen name="three_dp">3dp</dimen>
+    <dimen name="one_dp">1dp</dimen>
+
+    <dimen name="ten_sp">10sp</dimen>
 
     <!-- Widget attributes-->
     <dimen name="widget_default_width">110dp</dimen>
@@ -29,5 +35,7 @@
     <dimen name="widget_detail_min_resize_width">220dp</dimen>
     <dimen name="widget_detail_min_resize_height">@dimen/widget_detail_default_height</dimen>
     <dimen name="widget_margin">8dp</dimen>
+
+
 
 </resources>

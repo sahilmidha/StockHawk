@@ -6,8 +6,10 @@
               android:layout_height="match_parent"
               android:gravity="center"
               android:orientation="vertical"
-              android:paddingLeft="2dp"
-              android:paddingRight="2dp"
+              android:paddingLeft="@dimen/two_dp"
+              android:paddingRight="@dimen/two_dp"
+              android:paddingStart="@dimen/two_dp"
+              android:paddingEnd="@dimen/two_dp"
 >
     <TextView
         android:id="@+id/stock_symbol_widget"

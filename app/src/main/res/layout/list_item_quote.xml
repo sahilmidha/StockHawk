@@ -6,7 +6,9 @@
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:paddingLeft="16dp"
+    android:paddingStart="16dp"
     android:paddingRight="16dp"
+    android:paddingEnd="16dp"
     android:focusable="true"
     >
     <LinearLayout
@@ -15,7 +17,9 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/abc_list_item_padding_horizontal_material"
-        android:paddingRight="@dimen/abc_list_item_padding_horizontal_material">
+        android:paddingRight="@dimen/abc_list_item_padding_horizontal_material"
+        android:paddingStart="@dimen/abc_list_item_padding_horizontal_material"
+        android:paddingEnd="@dimen/abc_list_item_padding_horizontal_material">
   <TextView
       android:id="@+id/stock_symbol"
       style="@style/StockSymbolTextStyle"
@@ -35,7 +39,8 @@
         style="@style/BidPriceTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="10sp"
+        android:paddingRight="@dimen/ten_sp"
+        android:paddingEnd="@dimen/ten_dp"
         tools:text="1000.00"
         />
     <TextView
@@ -44,8 +49,10 @@
         style="@style/PercentChangeTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="3dp"
-        android:paddingRight="3dp"
+        android:paddingLeft="@dimen/three_dp"
+        android:paddingRight="@dimen/three_dp"
+        android:paddingStart="@dimen/three_dp"
+        android:paddingEnd="@dimen/three_dp"
         tools:text="100%"
         />
   </LinearLayout>
@@ -53,7 +60,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/one_dp"
         android:alpha="0.5"
         android:background="@android:color/darker_gray" />
 

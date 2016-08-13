@@ -7,6 +7,8 @@
     android:gravity="center_vertical"
     android:paddingLeft="@dimen/eleven_dp"
     android:paddingRight="@dimen/eleven_dp"
+    android:paddingStart="@dimen/eleven_dp"
+    android:paddingEnd="@dimen/eleven_dp"
 >
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,6 +24,7 @@
             android:layout_gravity="center_vertical"
             android:textColor="@android:color/black"
             android:paddingLeft="@dimen/five_dp"
+            android:paddingStart="@dimen/five_dp"
             android:textSize="@dimen/sixteen_dp"
             tools:text="GOOG"
         />
@@ -33,6 +36,7 @@
             android:textColor="@android:color/black"
             android:layout_gravity="center_vertical"
             android:paddingRight="@dimen/five_dp"
+            android:paddingEnd="@dimen/five_dp"
             android:gravity="right"
             android:textSize="@dimen/sixteen_dp"
             tools:text="1000.00"
@@ -42,7 +46,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/one_dp"
         android:alpha="0.5"
         android:layout_marginTop="@dimen/ten_dp"
         android:background="@android:color/darker_gray"/>

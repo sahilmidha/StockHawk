@@ -6,8 +6,10 @@
               android:layout_height="match_parent"
               android:gravity="center_vertical"
               android:orientation="horizontal"
-              android:paddingLeft="2dp"
-              android:paddingRight="2dp"
+              android:paddingLeft="@dimen/two_dp"
+              android:paddingRight="@dimen/two_dp"
+              android:paddingStart="@dimen/two_dp"
+              android:paddingEnd="@dimen/two_dp"
 >
 
     <TextView
@@ -22,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="left|center_vertical"
-        android:layout_margin="5dp"
+        android:layout_margin="@dimen/five_dp"
         tools:text=" - "
     />
     <TextView
@@ -44,7 +46,8 @@
             style="@style/BidPriceTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="10sp"
+            android:paddingRight="@dimen/ten_sp"
+            android:paddingEnd="@dimen/ten_sp"
             tools:text="1000.00"
         />
         <TextView
@@ -53,8 +56,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/percent_change_pill"
-            android:paddingLeft="3dp"
-            android:paddingRight="3dp"
+            android:paddingLeft="@dimen/three_dp"
+            android:paddingRight="@dimen/three_dp"
+            android:paddingStart="@dimen/three_dp"
+            android:paddingEnd="@dimen/three_dp"
             tools:text="100%"
         />
     </LinearLayout>
