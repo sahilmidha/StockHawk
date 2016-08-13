@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,8 @@ import java.util.Date;
  */
 public class ChartFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
+    private static final String  LOG_TAG = ChartFragment.class.getSimpleName();
+
     private static final int CURSOR_LOADER_ID_FOR_CHART = 0;
 
     public static String mSymbol;
@@ -76,6 +79,7 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onResume()
     {
         super.onResume();
+        Log.d(LOG_TAG, "OnResume() called");
         getLoaderManager().restartLoader(CURSOR_LOADER_ID_FOR_CHART, null, this);
     }
 
@@ -165,6 +169,7 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
 
     public void updateChart(Cursor cursor)
     {
+        Log.d(LOG_TAG, "updateChart() called");
         //this will store yValues(Closing price)
         ArrayList<Entry> entries = new ArrayList<>();
 
@@ -187,22 +192,25 @@ public class ChartFragment extends Fragment implements LoaderManager.LoaderCallb
         xAxis.setLabelsToSkip(5);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextSize(12f);
-        xAxis.setTextColor(Color.rgb(182,182,182));
+        xAxis.setTextColor(Color.rgb(125,125,125));
 
         YAxis left = mLineChart.getAxisLeft();
         left.setEnabled(true);
-        left.setLabelCount(10, true);
-        left.setTextColor(Color.rgb(182,182,182));
+        left.setLabelCount(15, true);
+        left.setTextColor(Color.rgb(125,125,125));
 
         mLineChart.getAxisRight().setEnabled(false);
         mLineChart.getLegend().setTextSize(16f);
         mLineChart.setDrawGridBackground(true);
-        mLineChart.setGridBackgroundColor(Color.rgb(25,118,210));
+        //mLineChart.setGridBackgroundColor(Color.rgb(25,118,210));
+        mLineChart.setGridBackgroundColor(Color.rgb(255,255,255));
         mLineChart.setDescriptionColor(Color.WHITE);
         mLineChart.setDescription(getString(R.string.one_year_stock_comparison));
 
         String name= getResources().getString(R.string.instructions_chart);
         LineDataSet dataSet = new LineDataSet(entries, name);
+        dataSet.setColor(Color.rgb(255,0,0));
+
         LineData lineData = new LineData(xvalues, dataSet);
 
         mLineChart.animateX(2500);

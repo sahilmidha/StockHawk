@@ -53,8 +53,7 @@ public class StockTaskService extends GcmTaskService
     private OkHttpClient client = new OkHttpClient();
     private Context mContext;
     private StringBuilder mStoredSymbols = new StringBuilder();
-    private boolean mIsUpdate;
-    private boolean mUpdateCall;
+    private boolean mIsUpdate = false;
 
     private List<String> mSymbolList = new ArrayList<String>();
 
@@ -87,10 +86,7 @@ public class StockTaskService extends GcmTaskService
         {
             mContext = this;
         }
-        if(params.getTag().equals("periodic") && !params.getTag().equals("init")){
-            //make an update call
-            mUpdateCall = true;
-        }
+
         StringBuilder urlStringBuilder = new StringBuilder();
         try
         {
@@ -104,14 +100,14 @@ public class StockTaskService extends GcmTaskService
         {
             e.printStackTrace();
         }
-        if (params.getTag().equals("init") || params.getTag().equals("periodic"))
+        if (params.getTag().equals(mContext.getString(R.string.init_symbol)) || params.getTag().equals(mContext.getString(R.string.periodic)))
         {
-            mIsUpdate = true;
             initQueryCursor = mContext.getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                     new String[]{"Distinct " + QuoteColumns.SYMBOL}, null,
                     null, null);
             if (initQueryCursor.getCount() == 0 || initQueryCursor == null)
             {
+                mIsUpdate = false;
                 // Init task. Populates DB with quotes for the symbols seen below
                 try
                 {
@@ -125,6 +121,8 @@ public class StockTaskService extends GcmTaskService
             }
             else if (initQueryCursor != null)
             {
+                mIsUpdate = true;
+
                 DatabaseUtils.dumpCursor(initQueryCursor);
                 initQueryCursor.moveToFirst();
                 for (int i = 0; i < initQueryCursor.getCount(); i++)
@@ -144,11 +142,10 @@ public class StockTaskService extends GcmTaskService
                 }
             }
         }
-        else if (params.getTag().equals("add"))
+        else if (params.getTag().equals(mContext.getString(R.string.add_symbol)))
         {
-            mIsUpdate = false;
             // get symbol from params.getExtra and build query
-            String stockInput = params.getExtras().getString("symbol");
+            String stockInput = params.getExtras().getString(mContext.getString(R.string.symbol));
             try
             {
                 urlStringBuilder.append(URLEncoder.encode("\"" + stockInput + "\")", "UTF-8"));
@@ -188,10 +185,6 @@ public class StockTaskService extends GcmTaskService
                             // update ISCURRENT to 0 (false) so new data is current
                             if (mIsUpdate)
                             {
-                                Log.d(LOG_TAG, "delete quote history");
-                                mContext.getContentResolver().delete(QuoteProvider.QuotesHistory.CONTENT_URI,
-                                        null, null);
-
                                 contentValues.put(QuoteColumns.ISCURRENT, 0);
                                 mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
                                         null, null);
@@ -225,6 +218,14 @@ public class StockTaskService extends GcmTaskService
                 Log.e(LOG_TAG, "String to JSON failed: " + e);
                 e.printStackTrace();
                 setStockStatus(mContext, STOCK_STATUS_SERVER_INVALID);
+            }
+            catch (RemoteException e)
+            {
+                e.printStackTrace();
+            }
+            catch (OperationApplicationException e)
+            {
+                e.printStackTrace();
             }
         }
 
@@ -346,34 +347,37 @@ public class StockTaskService extends GcmTaskService
         spe.commit();
     }
 
-    private void saveQuotesHistory(List<String> quotes) throws IOException, JSONException
+    private void saveQuotesHistory(List<String> quotes) throws IOException, JSONException, RemoteException, OperationApplicationException
     {
-        if (mUpdateCall)
-        {//this is a periodic update
-            mContext.getContentResolver().delete(QuoteProvider.QuotesHistory.CONTENT_URI,
-                    null, null);
-            Log.d(LOG_TAG, "delete quote history");
+        if (mIsUpdate)
+        {
+            Cursor quotesHistoryCursor = mContext.getContentResolver().query(QuoteProvider.QuotesHistory.CONTENT_URI,
+                    null,null,null, null);
+            if (quotesHistoryCursor.getCount() != 0 || quotesHistoryCursor != null)
+            {
+                Log.d(LOG_TAG, "delete quote history");
+                mContext.getContentResolver().delete(QuoteProvider.QuotesHistory.CONTENT_URI,
+                        null, null);
+            }
         }
 
-        for (String quote : quotes)
-        {
-            // Load historical data for the quote
-            fetchHistoricalData(quote);
-        }
+        fetchHistoricalData(quotes);
     }
 
-    private void fetchHistoricalData(String symbol) throws IOException, JSONException
+    private void fetchHistoricalData(List<String> quotesList) throws IOException, JSONException, RemoteException, OperationApplicationException
     {
+        ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
 
-        ArrayList arrayList;
         // Load historic stock data
         final String BASE_URL = "http://chartapi.finance.yahoo.com/instrument/1.0/";
         final String END_URL = "/chartdata;type=quote;range=1y/json";
 
-        StringBuilder urlStringBuilder = new StringBuilder();
-        urlStringBuilder.append(BASE_URL + symbol + END_URL);
+        for(String symbol : quotesList)
+        {
+            StringBuilder urlStringBuilder = new StringBuilder();
+            urlStringBuilder.append(BASE_URL + symbol + END_URL);
 
-        String responseStr = executeNetworkRequest(new URL(urlStringBuilder.toString()));
+            String responseStr = executeNetworkRequest(new URL(urlStringBuilder.toString()));
         /*if (response != 200)
         {
             // Stream was empty.  No point in parsing.
@@ -383,10 +387,6 @@ public class StockTaskService extends GcmTaskService
         {*/
             //to parse the json data..
             String JSON_SERIES = "series";
-            String JSON_DATE = "Date";
-            String JSON_CLOSE = "close";
-
-            ContentValues contentValues = new ContentValues();
             /**
              * The retrieved data is in JSONP format.
              * so we need to strip off the outer function,
@@ -397,18 +397,30 @@ public class StockTaskService extends GcmTaskService
             JSONArray series_data = mainObject.getJSONArray(JSON_SERIES);
             for (int i = 0; i < series_data.length(); i += 10)
             {
-                JSONObject singleObject = series_data.getJSONObject(i);
-                contentValues.put(QuoteHistoryColumns.DATE, singleObject.getString(JSON_DATE));
-                contentValues.put(QuoteHistoryColumns.LAST_CLOSING_PRICE, singleObject.getString(JSON_CLOSE));
-
-                //this is adding new symbol (either on add or on initialisation)
-                    contentValues.put(QuoteHistoryColumns.SYMBOL, symbol);
-                    mContext.getContentResolver().insert(QuoteProvider.QuotesHistory.CONTENT_URI, contentValues);
-
-            //}
+                JSONObject jsonObject = series_data.getJSONObject(i);
+                batchOperations.add(buildQuoteHistoryBatchOperation(jsonObject, symbol));
+            }
         }
+        mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
+                batchOperations);
     }
 
+    public ContentProviderOperation buildQuoteHistoryBatchOperation(JSONObject jsonObject, String symbol) throws JSONException
+    {
+        String JSON_DATE = "Date";
+        String JSON_CLOSE = "close";
+
+        ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
+                QuoteProvider.QuotesHistory.CONTENT_URI);
+
+        builder.withValue(QuoteHistoryColumns.DATE, jsonObject.getString(JSON_DATE));
+        builder.withValue(QuoteHistoryColumns.LAST_CLOSING_PRICE, jsonObject.getString(JSON_CLOSE));
+        builder.withValue(QuoteHistoryColumns.SYMBOL, symbol);
+
+        return builder.build();
+    }
+
+    //for some reason I was having problem with OkHttp. So I wrote this call.
     private String executeNetworkRequest(URL url)
     {
         final int REQUEST_READ_TIME_OUT = 10000;

@@ -82,7 +82,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         if (savedInstanceState == null)
         {
             // Run the initialize task service so that some stocks appear upon an empty database
-            mServiceIntent.putExtra("tag", "init");
+            mServiceIntent.putExtra(getString(R.string.tag), getString(R.string.init_symbol));
             if (isConnected)
             {
                 mRecyclerView.setVisibility(View.VISIBLE);
@@ -143,11 +143,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                                         }
                                         else
                                         {
-                                            // Add the stock to DB
-                                            mServiceIntent.putExtra("tag", "add");
-                                            mServiceIntent.putExtra("symbol", s);
-                                            startService(mServiceIntent);
                                             showProgressDialog(mContext);
+                                            // Add the stock to DB
+                                            mServiceIntent.putExtra(getString(R.string.tag), getString(R.string.add_symbol));
+                                            mServiceIntent.putExtra(getString(R.string.symbol), s);
+                                            startService(mServiceIntent);
                                         }
                                     }
                                     else
@@ -175,7 +175,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         {
             long period = 3600L;
             long flex = 10L;
-            String periodicTag = "periodic";
+            String periodicTag = getString(R.string.periodic);
 
             // create a periodic task to pull stocks once every hour after the app has been opened. This
             // is so Widget data stays up to date.

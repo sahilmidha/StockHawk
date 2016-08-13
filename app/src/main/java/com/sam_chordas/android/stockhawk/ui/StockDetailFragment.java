@@ -88,6 +88,11 @@ public class StockDetailFragment extends Fragment
         bidPrice.setText(mBidPrice);
         stockChange.setText(bothChanges);
 
+        name.setContentDescription(getString(R.string.symbol_name) + mName);
+        symbol.setContentDescription(getString(R.string.symbol) + mSymbol);
+        bidPrice.setContentDescription(getString(R.string.bid_price) + mBidPrice);
+        stockChange.setContentDescription(getString(R.string.change) + bothChanges);
+
         TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.materialup_tabs);
         ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.materialup_viewpager);
 

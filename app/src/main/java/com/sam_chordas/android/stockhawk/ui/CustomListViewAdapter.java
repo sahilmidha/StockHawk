@@ -2,6 +2,7 @@ package com.sam_chordas.android.stockhawk.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +57,9 @@ public class CustomListViewAdapter extends ArrayAdapter
             holder = new ViewHolder();
             holder.name = (TextView)row.findViewById(R.id.stock_attribute_name);
             holder.value = (TextView)row.findViewById(R.id.stock_attribute_value);
+
+            holder.value.setTextColor(Color.rgb(90,90,90));
+            holder.name.setTextColor(Color.rgb(90,90,90));
 
             row.setTag(holder);
         }
